@@ -1,0 +1,8 @@
+SmartRetailAI Loyalty Program
+
+Membership Tiers:
+1. Silver: Basic rewards (1% cashback).
+2. Gold: Free Express Shipping on Fashion items.
+3. Platinum: Early access to Electronics sales and 5% cashback on all orders.
+
+Redemption: 100 Reward Points = ₹10. Points expire after 12 months of inactivity.

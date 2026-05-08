@@ -1,0 +1,12 @@
+Welcome to SmartRetailAI. 
+
+We are a multi-category intelligent retail platform providing high-quality products across four primary departments:
+1. Consumer Electronics: Latest gadgets, laptops, and smart home devices.
+2. Fashion & Apparel: Trendy clothing, footwear, and accessories for all ages.
+3. Health & Personal Care: Wellness products, skincare, and grooming essentials.
+4. Home & Kitchen Essentials: Modern cookware, decor, and organizational tools.
+
+Our mission is to integrate AI into your shopping experience through smart inventory tracking and personalized recommendations.
+
+Support Hours: 24/7 via AI Chatbot.
+Human Agent Availability: Monday - Saturday, 9 AM to 8 PM IST.

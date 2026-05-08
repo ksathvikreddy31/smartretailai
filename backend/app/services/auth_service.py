@@ -28,11 +28,13 @@ def login_user(db: Session, email: str, password: str):
 
     token = create_access_token({
         "sub": user.email,
+        "id": user.id,
         "role": user.role
     })
 
     return {
         "access_token": token,
         "token_type": "bearer",
+        "id": user.id,
         "role": user.role
     }

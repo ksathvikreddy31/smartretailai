@@ -12,9 +12,9 @@ try:
         autoflush=False,
         bind=engine
     )
-    print("✅ Database Engine Initialized Successfully")
+    print("Database Engine Initialized Successfully")
 except Exception as e:
-    print(f"❌ DATABASE CONNECTION ERROR: {e}")
+    print(f"DATABASE CONNECTION ERROR: {e}")
     # Fallback dummy engine or allow the server to start without killing the app
     engine = None
     SessionLocal = None

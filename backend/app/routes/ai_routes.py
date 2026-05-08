@@ -1,21 +1,295 @@
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel
-from app.services import ai_service
-from app.utils.deps import get_current_user
 
+# # from fastapi import APIRouter, Depends
+
+# # from sqlalchemy.orm import Session
+
+# # from pydantic import BaseModel
+
+# # from app.services import ai_service
+
+# # from app.services.forecast_service import (
+# #     predict_demand
+# # )
+
+# # from app.utils.deps import (
+# #     get_db,
+# #     get_current_user
+# # )
+
+# # # ==========================================
+# # # QA AGENT
+# # # ==========================================
+# # from agent.qa_Agent.agent import (
+# #     ask_qa_agent
+# # )
+
+# # # ==========================================
+# # # ORCHESTRATOR
+# # # ==========================================
+# # from agent.orchestrator_agent.orchestrator import (
+# #     OrchestratorAgent
+# # )
+
+# # # ==========================================
+# # # ROUTER
+# # # ==========================================
+# # router = APIRouter()
+
+# # # ==========================================
+# # # ORCHESTRATOR INSTANCE
+# # # ==========================================
+# # orchestrator = OrchestratorAgent()
+
+# # # ==========================================
+# # # CHAT REQUEST
+# # # ==========================================
+# # class ChatRequest(BaseModel):
+
+# #     message: str
+
+# # # ==========================================
+# # # RETAIL OWNER CHATBOT
+# # # ==========================================
+# # @router.post("/retail-chat")
+# # def retail_chat(
+
+# #     query: ChatRequest,
+
+# #     db: Session = Depends(get_db),
+
+# #     user: dict = Depends(get_current_user)
+# # ):
+
+# #     try:
+
+# #         print("\nUSER QUERY:")
+# #         print(query.message)
+
+# #         response = orchestrator.run(
+
+# #             query=query.message,
+
+# #             role=user["role"],
+
+# #             user_id=user["id"],
+
+# #             db=db
+# #         )
+
+# #         print("\nFINAL API RESPONSE:")
+# #         print(response)
+
+# #         return response
+
+# #     except Exception as e:
+
+# #         print("AI ROUTE ERROR:", e)
+
+# #         return {
+
+# #             "success": False,
+
+# #             "message": str(e)
+# #         }
+
+# from fastapi import APIRouter, Depends
+
+# from sqlalchemy.orm import Session
+
+# from pydantic import BaseModel
+
+# from app.utils.deps import (
+#     get_db,
+#     get_current_user
+# )
+
+# # ==========================================
+# # ORCHESTRATOR
+# # ==========================================
+# from agent.orchestrator_agent.orchestrator import (
+#     OrchestratorAgent
+# )
+
+# # ==========================================
+# # ROUTER
+# # ==========================================
+# router = APIRouter()
+
+# # ==========================================
+# # ORCHESTRATOR INSTANCE
+# # ==========================================
+# orchestrator = OrchestratorAgent()
+
+# # ==========================================
+# # CHAT REQUEST
+# # ==========================================
+# class ChatRequest(BaseModel):
+
+#     message: str
+
+# # ==========================================
+# # RETAIL OWNER CHATBOT
+# # ==========================================
+# @router.post("/retail-chat")
+# def retail_chat(
+
+#     query: ChatRequest,
+
+#     db: Session = Depends(get_db),
+
+#     user: dict = Depends(get_current_user)
+# ):
+
+#     try:
+
+#         print("\nUSER QUERY:")
+#         print(query.message)
+
+#         response = orchestrator.run(
+
+#             query=query.message,
+
+#             role=user["role"],
+
+#             user_id=user["id"],
+
+#             db=db
+#         )
+
+#         print("\nFINAL API RESPONSE:")
+#         print(response)
+
+#         return response
+
+#     except Exception as e:
+
+#         print("AI ROUTE ERROR:", e)
+
+#         return {
+
+#             "success": False,
+
+#             "message": str(e)
+#         }
+
+from fastapi import APIRouter, Depends
+
+from sqlalchemy.orm import Session
+
+from pydantic import BaseModel
+
+from app.utils.deps import (
+    get_db,
+    get_current_user
+)
+
+# ==========================================
+# QA AGENT  (for customers / "user" role)
+# ==========================================
+from agent.qa_Agent.agent import ask_qa_agent
+
+# ==========================================
+# ORCHESTRATOR  (for retail owners)
+# ==========================================
+from agent.orchestrator_agent.orchestrator import (
+    OrchestratorAgent
+)
+
+# ==========================================
+# ROUTER
+# ==========================================
 router = APIRouter()
 
+# ==========================================
+# ORCHESTRATOR INSTANCE
+# ==========================================
+orchestrator = OrchestratorAgent()
+
+
+# ==========================================
+# CHAT REQUEST SCHEMA
+# ==========================================
 class ChatRequest(BaseModel):
+
     message: str
 
-@router.get("/forecast")
-def get_demand_forecast(user: dict = Depends(get_current_user)):
-    return ai_service.generate_forecast()
+    context: str = "user"   # "user" | "retail"
 
-@router.get("/anomalies")
-def get_anomaly_alerts(user: dict = Depends(get_current_user)):
-    return ai_service.detect_anomalies()
 
+# ==========================================
+# /ai/chat  ←  CUSTOMER CHATBOT
+# This is what Chatbot.jsx calls.
+# ==========================================
 @router.post("/chat")
-def chat_with_ai(query: ChatRequest, user: dict = Depends(get_current_user)):
-    return ai_service.process_chat_query(query.message, user.get("role"))
+def customer_chat(
+
+    body: ChatRequest,
+
+    db: Session = Depends(get_db),
+
+    user: dict = Depends(get_current_user)
+):
+
+    try:
+
+        print("\nCUSTOMER QUERY:", body.message)
+
+        reply = ask_qa_agent(
+
+            query=body.message,
+
+            customer_id=user["id"]
+        )
+
+        print("\nQA REPLY:", reply)
+
+        return {"reply": reply}
+
+    except Exception as e:
+
+        print("AI /chat ERROR:", e)
+
+        return {"reply": "Sorry, I couldn't process your request. Please try again."}
+
+
+# ==========================================
+# /ai/retail-chat  ←  RETAIL OWNER CHATBOT
+# Routes to analytics / ML / QA via orchestrator.
+# ==========================================
+@router.post("/retail-chat")
+def retail_chat(
+
+    body: ChatRequest,
+
+    db: Session = Depends(get_db),
+
+    user: dict = Depends(get_current_user)
+):
+
+    try:
+
+        print("\nRETAIL QUERY:", body.message)
+
+        response = orchestrator.run(
+
+            query=body.message,
+
+            role=user["role"],
+
+            user_id=user["id"],
+
+            db=db
+        )
+
+        print("\nFINAL API RESPONSE:", response)
+
+        return response
+
+    except Exception as e:
+
+        print("AI /retail-chat ERROR:", e)
+
+        return {
+            "success": False,
+            "message": str(e)
+        }

@@ -1,0 +1,9 @@
+Refund & Cancellation
+
+Cancellations: Allowed only before the order status changes to 'Shipped'.
+Refund Timeline: Once a return is picked up and inspected, refunds are initiated within 48 hours.
+Mode of Refund: 
+- Credit/Debit Cards: 5-7 business days.
+- UPI: Instant.
+- SmartRetailAI Wallet: Instant.
+Damaged Goods: If an electronic or glass item arrives broken, please upload a photo within 24 hours for an immediate refund.

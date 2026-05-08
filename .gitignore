@@ -1,9 +1,6 @@
 # Environment Variables
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
 
 # Node.js
 node_modules/
@@ -44,6 +41,12 @@ ENV/
 *.db
 *.sqlite3
 
+# Data Files
+*.csv
+*.json
+!package.json
+!package-lock.json
+
 # OS Generated
 .DS_Store
 Thumbs.db
@@ -55,3 +58,4 @@ Thumbs.db
 # Build outputs
 frontend/build/
 frontend/dist/
+frontend/out/
