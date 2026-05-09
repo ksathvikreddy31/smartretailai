@@ -1,36 +1,42 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from langchain_huggingface import HuggingFaceEmbeddings
-
 from langchain_pinecone import PineconeVectorStore
 
 from pinecone import Pinecone, ServerlessSpec
+from rag.embeddings import EMBEDDING_DIMENSION, get_embeddings
 
 # ==========================================
 # LOAD ENV
 # ==========================================
+BASE_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = BASE_DIR.parent
+
+load_dotenv(BACKEND_DIR / ".env")
 load_dotenv()
 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX = os.getenv("PINECONE_INDEX")
 
+if not PINECONE_API_KEY:
+    raise RuntimeError("PINECONE_API_KEY is not configured.")
+
+if not PINECONE_INDEX:
+    raise RuntimeError("PINECONE_INDEX is not configured.")
+
 # ==========================================
 # INIT EMBEDDINGS
 # ==========================================
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
+embeddings = get_embeddings()
 
 # ==========================================
 # LOAD DOCUMENTS
 # ==========================================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DOCS_PATH = os.path.join(BASE_DIR, "documents")
+DOCS_PATH = BASE_DIR / "documents"
 
 documents = []
 
@@ -39,7 +45,7 @@ for file in os.listdir(DOCS_PATH):
     if file.endswith(".txt"):
 
         loader = TextLoader(
-            os.path.join(DOCS_PATH, file),
+            str(DOCS_PATH / file),
             encoding="utf-8"
         )
 
@@ -70,7 +76,7 @@ if PINECONE_INDEX not in existing_indexes:
 
     pc.create_index(
         name=PINECONE_INDEX,
-        dimension=384,
+        dimension=EMBEDDING_DIMENSION,
         metric="cosine",
         spec=ServerlessSpec(
             cloud="aws",
@@ -79,6 +85,18 @@ if PINECONE_INDEX not in existing_indexes:
     )
 
     print("Pinecone index created")
+
+else:
+
+    index_info = pc.describe_index(PINECONE_INDEX)
+    index_dimension = getattr(index_info, "dimension", None)
+
+    if index_dimension and index_dimension != EMBEDDING_DIMENSION:
+        raise RuntimeError(
+            f"Pinecone index '{PINECONE_INDEX}' has dimension "
+            f"{index_dimension}, but the embedding model requires "
+            f"{EMBEDDING_DIMENSION}. Use a new index or recreate it."
+        )
 
 # ==========================================
 # PUSH TO PINECONE

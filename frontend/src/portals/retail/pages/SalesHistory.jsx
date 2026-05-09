@@ -7,6 +7,9 @@ export default function SalesHistory() {
 
   useEffect(() => {
     fetchHistory();
+    const intervalId = setInterval(fetchHistory, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchHistory = async () => {
@@ -65,7 +68,7 @@ export default function SalesHistory() {
                   <td className="px-6 py-5 text-sm font-bold text-white">₹{h.total_price.toLocaleString()}</td>
                   <td className="px-6 py-5 text-right">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${
-                      h.status === "Approved" || h.status === "Completed" 
+                      h.status === "Approved" || h.status === "Completed" || h.status === "Delivered" 
                         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
                         : "bg-amber-500/10 text-amber-400 border-amber-500/20"
                     }`}>
@@ -87,5 +90,5 @@ export default function SalesHistory() {
 
 const DEMO_HISTORY = [
   { id: 8802, user_id: 45, total_price: 120.00, status: "Approved", created_at: "2026-05-05T14:20:00Z", items: [{ product_name: "Gaming Mouse", quantity: 2 }] },
-  { id: 8790, user_id: 12, total_price: 54000.00, status: "Completed", created_at: "2026-04-30T09:15:00Z", items: [{ product_name: "MacBook Pro M1", quantity: 1 }] },
+  { id: 8790, user_id: 12, total_price: 54000.00, status: "Delivered", created_at: "2026-04-30T09:15:00Z", items: [{ product_name: "MacBook Pro M1", quantity: 1 }] },
 ];

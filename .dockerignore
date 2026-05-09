@@ -1,0 +1,69 @@
+# Git and local tooling
+.git
+.gitignore
+.dockerignore
+.vscode/
+.idea/
+
+# Environment files and secrets
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.crt
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Frontend dependencies and build outputs
+frontend/node_modules/
+frontend/.cache/
+frontend/build/
+frontend/dist/
+frontend/out/
+frontend/coverage/
+
+# Backend Python caches, virtualenvs, and test artifacts
+backend/venv/
+backend/.venv/
+backend/env/
+backend/ENV/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.py[cod]
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/.coverage
+backend/htmlcov/
+
+# Python package/build outputs
+backend/build/
+backend/dist/
+backend/*.egg-info/
+backend/.eggs/
+
+# Local databases and generated data
+*.db
+*.sqlite
+*.sqlite3
+backend/**/*.db
+backend/**/*.sqlite
+backend/**/*.sqlite3
+
+# Docker/generated artifacts
+docker-compose.override.yml
+*.tar
+*.tgz
+*.zip

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import api from "../../../shared/services/api";
 
 export default function ProductCard({ product }) {

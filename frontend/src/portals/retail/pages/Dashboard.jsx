@@ -104,7 +104,7 @@
 //   );
 // }
 
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import RetailMessageSection from "../components/RetailMessageSection";
 
@@ -120,11 +120,7 @@ export default function RetailDashboard() {
   // ==================================
   // FETCH DASHBOARD
   // ==================================
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
-
-  const fetchDashboard = async () => {
+  const fetchDashboard = useCallback(async () => {
     try {
       const res = await api.get(
         `/dashboard/retail-dashboard?retailer_id=${user?.id || 2}`,
@@ -136,7 +132,11 @@ export default function RetailDashboard() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
 
   // ==================================
   // LOADING

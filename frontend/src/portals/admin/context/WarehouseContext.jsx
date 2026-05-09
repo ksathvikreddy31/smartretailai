@@ -8,8 +8,6 @@ export const useWarehouse = () => useContext(WarehouseContext);
 export const WarehouseProvider = ({ children }) => {
   const [inventory, setInventory] = useState([]);
   const [approvals, setApprovals] = useState([]);
-  const [dispatches] = useState([]);
-  const [logs] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Fetch all data

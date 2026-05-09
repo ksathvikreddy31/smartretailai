@@ -245,7 +245,9 @@
 #             }
 
 import os
+from pathlib import Path
 
+from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import StateGraph, END
@@ -257,6 +259,14 @@ from agent.qa_Agent.agent import ask_qa_agent
 from agent.analytics_agent.agent import AnalyticsAgent
 
 from agent.retail_ml_agent.agent import RetailMLAgent
+
+
+# ==========================================
+# LOAD ENV
+# ==========================================
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+load_dotenv(BACKEND_DIR / ".env")
+load_dotenv()
 
 
 # ==========================================
@@ -355,6 +365,36 @@ class OrchestratorAgent:
         "revenue"
     ]
 
+    RAG_KEYWORDS = [
+        "about smartretail",
+        "smartretailai",
+        "company",
+        "policy",
+        "policies",
+        "faq",
+        "support hours",
+        "human agent",
+        "customer support",
+        "return policy",
+        "returns",
+        "return process",
+        "how to return",
+        "refund policy",
+        "refund process",
+        "refund timeline",
+        "cancellation",
+        "cancel policy",
+        "shipping",
+        "shipping policy",
+        "standard shipping",
+        "express shipping",
+        "delivery policy",
+        "loyalty",
+        "loyalty program",
+        "damaged goods",
+        "warranty",
+    ]
+
     # ======================================
     # BUILD LANGGRAPH
     # ======================================
@@ -368,6 +408,7 @@ class OrchestratorAgent:
         def router_node(state: OrchestratorState):
 
             role = state["role"]
+            role = role.lower() if role else ""
             query_lower = state["query"].lower()
 
             # Customer → always QA
@@ -375,7 +416,13 @@ class OrchestratorAgent:
                 return {"agent_name": "qa"}
 
             # Retail owner → keyword-based routing
-            if role == "retail":
+            if role in ["retail", "retailer"]:
+
+                if any(
+                    word in query_lower
+                    for word in orchestrator_self.RAG_KEYWORDS
+                ):
+                    return {"agent_name": "qa"}
 
                 if any(
                     word in query_lower

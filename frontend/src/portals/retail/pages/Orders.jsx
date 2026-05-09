@@ -11,7 +11,7 @@ export default function RetailOrders() {
 
   const fetchOrders = async () => {
     try {
-      const r = await api.get("/orders/retailer-orders?status=In Progress");
+      const r = await api.get("/orders/retailer-orders?status=pending");
       setOrders(r.data);
     } catch (err) {
       console.error(err);
@@ -67,6 +67,9 @@ export default function RetailOrders() {
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Customer ID</span>
                     <p className="text-slate-300 font-medium">User_{order.user_id}</p>
+                    <span className="inline-block mt-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold uppercase tracking-widest">
+                      {order.status}
+                    </span>
                   </div>
                 </div>
 

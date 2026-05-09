@@ -7,6 +7,9 @@ export default function Orders() {
 
   useEffect(() => {
     fetchOrders();
+    const intervalId = setInterval(fetchOrders, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchOrders = async () => {
@@ -25,9 +28,16 @@ export default function Orders() {
     switch (status) {
       case "Approved": return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
       case "Completed": return "bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
+      case "Delivered": return "bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
       case "Cancelled": return "bg-rose-500/10 text-rose-400 border-rose-500/20";
       default: return "bg-amber-500/10 text-amber-400 border-amber-500/20";
     }
+  };
+
+  const getProgressWidth = (status) => {
+    if (status === "Approved") return "66%";
+    if (status === "Delivered" || status === "Completed") return "100%";
+    return "33%";
   };
 
   return (
@@ -95,13 +105,13 @@ export default function Orders() {
                   <div className="relative h-1 bg-slate-800 rounded-full overflow-hidden">
                     <div 
                       className="absolute top-0 left-0 h-full bg-indigo-500 transition-all duration-1000"
-                      style={{ width: order.status === "In Progress" ? "33%" : order.status === "Approved" ? "66%" : "100%" }}
+                      style={{ width: getProgressWidth(order.status) }}
                     />
                   </div>
                   <div className="flex justify-between mt-3 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                    <span className={order.status === "In Progress" ? "text-indigo-400" : ""}>In Progress</span>
+                    <span className={order.status === "In Progress" || order.status === "Pending Approval" ? "text-indigo-400" : ""}>In Progress</span>
                     <span className={order.status === "Approved" ? "text-indigo-400" : ""}>Approved</span>
-                    <span className={order.status === "Completed" ? "text-indigo-400" : ""}>Delivered</span>
+                    <span className={order.status === "Delivered" || order.status === "Completed" ? "text-indigo-400" : ""}>Delivered</span>
                   </div>
                 </div>
               </div>

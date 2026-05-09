@@ -321,11 +321,23 @@ from fastapi.exceptions import (
 )
 
 from fastapi.responses import (
+    FileResponse,
+
     JSONResponse
+)
+
+from fastapi.staticfiles import (
+    StaticFiles
 )
 
 from contextlib import (
     asynccontextmanager
+)
+
+import os
+
+from pathlib import (
+    Path
 )
 
 # =========================================
@@ -469,7 +481,6 @@ async def validation_exception_handler(
 # CORS CONFIGURATION
 # =========================================
 app.add_middleware(
-
     CORSMiddleware,
 
     allow_origins=[
@@ -621,6 +632,67 @@ app.include_router(
 
     tags=["Orders & Cart"]
 )
+
+# =========================================
+# FRONTEND STATIC FILES
+# =========================================
+def get_frontend_build_dir():
+
+    configured_dir = os.getenv("FRONTEND_BUILD_DIR")
+
+    candidates = []
+
+    if configured_dir:
+
+        candidates.append(
+            Path(configured_dir)
+        )
+
+    candidates.extend([
+
+        Path(__file__).resolve().parents[3] / "frontend" / "build",
+
+        Path.cwd() / "frontend" / "build",
+
+        Path("/app/frontend/build")
+    ])
+
+    for candidate in candidates:
+
+        if candidate.exists():
+
+            return candidate
+
+    return None
+
+
+frontend_build_dir = get_frontend_build_dir()
+
+if frontend_build_dir:
+
+    static_dir = frontend_build_dir / "static"
+
+    if static_dir.exists():
+
+        app.mount(
+            "/static",
+
+            StaticFiles(directory=static_dir),
+
+            name="static"
+        )
+
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+
+        requested_file = frontend_build_dir / full_path
+
+        if requested_file.is_file():
+
+            return FileResponse(requested_file)
+
+        return FileResponse(frontend_build_dir / "index.html")
 
 # =========================================
 # RUN SERVER

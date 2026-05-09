@@ -183,6 +183,10 @@ class OrderItem(Base):
         back_populates="order_items"
     )
 
+    @property
+    def product_name(self):
+        return self.product.name if self.product else "Product"
+
 
 class Payment(Base):
     __tablename__ = "payments"
