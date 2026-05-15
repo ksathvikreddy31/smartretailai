@@ -421,7 +421,31 @@ AZURE_STORAGE_CONNECTION_STRING=
 ![Users](screenshots/warehouseadmin/usermanagement.png)
 
 ---
+# ☁️ Azure Cloud Integration
 
+## Azure Resource Group
+
+![Azure Resource Group](screenshots/azure/resourcegroup.png)
+
+---
+
+## Azure SQL Database
+
+![Azure SQL Database](screenshots/azure/azuredatabase.png)
+
+---
+
+## Azure Data Factory (ADF)
+
+![Azure Data Factory](screenshots/azure/ADF.png)
+
+---
+
+## Azure ML / AI Models
+
+![Azure Models](screenshots/azure/Models.png)
+
+---
 ---
 
 # 👨‍💻 Contributors
