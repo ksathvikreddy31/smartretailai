@@ -1,4 +1,5 @@
 
+
 # from fastapi import FastAPI, Request
 
 # from fastapi.middleware.cors import (
@@ -10,11 +11,22 @@
 # )
 
 # from fastapi.responses import (
+#     FileResponse,
 #     JSONResponse
+# )
+
+# from fastapi.staticfiles import (
+#     StaticFiles
 # )
 
 # from contextlib import (
 #     asynccontextmanager
+# )
+
+# import os
+
+# from pathlib import (
+#     Path
 # )
 
 # # =========================================
@@ -41,7 +53,9 @@
 
 #     ai_routes,
 
-#     order_routes
+#     order_routes,
+
+#     sales_backup_routes
 # )
 
 # # =========================================
@@ -59,14 +73,18 @@
 # )
 
 # # =========================================
+# # DASHBOARD ROUTES
+# # =========================================
+# from app.routes.dashboard_routes import (
+#     router as dashboard_router
+# )
+
+# # =========================================
 # # APPLICATION LIFESPAN
 # # =========================================
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
 
-#     # -------------------------------------
-#     # CREATE DATABASE TABLES
-#     # -------------------------------------
 #     if engine:
 
 #         try:
@@ -151,7 +169,6 @@
 # # CORS CONFIGURATION
 # # =========================================
 # app.add_middleware(
-
 #     CORSMiddleware,
 
 #     allow_origins=[
@@ -269,6 +286,18 @@
 # )
 
 # # =========================================
+# # DASHBOARD ROUTES
+# # =========================================
+# app.include_router(
+
+#     dashboard_router,
+
+#     prefix="/dashboard",
+
+#     tags=["Dashboard"]
+# )
+
+# # =========================================
 # # ADMIN ROUTES
 # # =========================================
 # app.include_router(
@@ -291,6 +320,79 @@
 
 #     tags=["Orders & Cart"]
 # )
+
+# # =========================================
+# # SALES BACKUP ROUTES
+# # =========================================
+# app.include_router(
+
+#     sales_backup_routes.router,
+
+#     prefix="/backup",
+
+#     tags=["Sales Backup"]
+# )
+
+# # =========================================
+# # FRONTEND STATIC FILES
+# # =========================================
+# def get_frontend_build_dir():
+
+#     configured_dir = os.getenv("FRONTEND_BUILD_DIR")
+
+#     candidates = []
+
+#     if configured_dir:
+
+#         candidates.append(
+#             Path(configured_dir)
+#         )
+
+#     candidates.extend([
+
+#         Path(__file__).resolve().parents[3] / "frontend" / "build",
+
+#         Path.cwd() / "frontend" / "build",
+
+#         Path("/app/frontend/build")
+#     ])
+
+#     for candidate in candidates:
+
+#         if candidate.exists():
+
+#             return candidate
+
+#     return None
+
+
+# frontend_build_dir = get_frontend_build_dir()
+
+# if frontend_build_dir:
+
+#     static_dir = frontend_build_dir / "static"
+
+#     if static_dir.exists():
+
+#         app.mount(
+#             "/static",
+
+#             StaticFiles(directory=static_dir),
+
+#             name="static"
+#         )
+
+
+#     @app.get("/{full_path:path}")
+#     async def serve_frontend(full_path: str):
+
+#         requested_file = frontend_build_dir / full_path
+
+#         if requested_file.is_file():
+
+#             return FileResponse(requested_file)
+
+#         return FileResponse(frontend_build_dir / "index.html")
 
 # # =========================================
 # # RUN SERVER
@@ -322,7 +424,6 @@ from fastapi.exceptions import (
 
 from fastapi.responses import (
     FileResponse,
-
     JSONResponse
 )
 
@@ -364,7 +465,9 @@ from app.routes import (
 
     ai_routes,
 
-    order_routes
+    order_routes,
+
+    sales_backup_routes
 )
 
 # =========================================
@@ -394,9 +497,6 @@ from app.routes.dashboard_routes import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
-    # -------------------------------------
-    # CREATE DATABASE TABLES
-    # -------------------------------------
     if engine:
 
         try:
@@ -500,18 +600,6 @@ app.add_middleware(
 
     allow_headers=["*"],
 )
-
-# =========================================
-# HOME ROUTE
-# =========================================
-@app.get("/")
-def home():
-
-    return {
-
-        "message":
-        "Smart Retail AI Backend Running 🚀"
-    }
 
 # =========================================
 # AUTH ROUTES
@@ -634,6 +722,18 @@ app.include_router(
 )
 
 # =========================================
+# SALES BACKUP ROUTES
+# =========================================
+app.include_router(
+
+    sales_backup_routes.router,
+
+    prefix="/backup",
+
+    tags=["Sales Backup"]
+)
+
+# =========================================
 # FRONTEND STATIC FILES
 # =========================================
 def get_frontend_build_dir():
@@ -661,7 +761,11 @@ def get_frontend_build_dir():
 
         if candidate.exists():
 
+            print(f"[SUCCESS] Frontend Found: {candidate}")
+
             return candidate
+
+    print("[WARNING] Frontend Build Directory Not Found")
 
     return None
 
@@ -672,6 +776,9 @@ if frontend_build_dir:
 
     static_dir = frontend_build_dir / "static"
 
+    # =========================================
+    # STATIC FILES
+    # =========================================
     if static_dir.exists():
 
         app.mount(
@@ -682,17 +789,23 @@ if frontend_build_dir:
             name="static"
         )
 
-
+    # =========================================
+    # REACT FRONTEND ROUTE
+    # =========================================
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
 
         requested_file = frontend_build_dir / full_path
 
-        if requested_file.is_file():
+        # Serve actual file if exists
+        if requested_file.exists() and requested_file.is_file():
 
             return FileResponse(requested_file)
 
-        return FileResponse(frontend_build_dir / "index.html")
+        # Otherwise return React index.html
+        return FileResponse(
+            frontend_build_dir / "index.html"
+        )
 
 # =========================================
 # RUN SERVER
@@ -705,9 +818,9 @@ if __name__ == "__main__":
 
         "app.main:app",
 
-        host="127.0.0.1",
+        host="0.0.0.0",
 
-        port=8001,
+        port=8000,
 
         reload=True
     )

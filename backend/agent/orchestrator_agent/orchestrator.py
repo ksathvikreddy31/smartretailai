@@ -1,249 +1,4 @@
 
-# from agent.qa_Agent.agent import (
-#     ask_qa_agent
-# )
-
-# # ==========================================
-# # IMPORT ANALYTICS AGENT
-# # ==========================================
-# from agent.analytics_agent.agent import (
-#     AnalyticsAgent
-# )
-
-# # ==========================================
-# # IMPORT NEW RETAIL ML AGENT
-# # ==========================================
-# from agent.retail_ml_agent.agent import (
-#     RetailMLAgent
-# )
-
-
-# # ==========================================
-# # ORCHESTRATOR AGENT
-# # ==========================================
-# class OrchestratorAgent:
-
-#     def __init__(self):
-
-#         self.analytics_agent = (
-#             AnalyticsAgent()
-#         )
-
-#         self.retail_ml_agent = (
-#             RetailMLAgent()
-#         )
-
-#     # ======================================
-#     # ROUTING LOGIC
-#     # ======================================
-#     def route_agent(
-
-#         self,
-
-#         query,
-
-#         role
-#     ):
-
-#         query_lower = query.lower()
-
-#         # ==================================
-#         # CUSTOMER
-#         # ==================================
-#         if role == "user":
-
-#             return "qa"
-
-#         # ==================================
-#         # RETAIL OWNER
-#         # ==================================
-#         if role == "retail":
-
-#             # ==================================
-#             # ML FORECAST + ANOMALY ROUTING
-#             # ==================================
-#             if any(
-
-#                 word in query_lower
-
-#                 for word in [
-
-#                     "forecast",
-#                     "prediction",
-#                     "predict",
-#                     "future",
-#                     "future demand",
-#                     "future sales",
-#                     "demand",
-#                     "trend",
-#                     "trending",
-#                     "growth",
-#                     "next month",
-#                     "sales forecast",
-#                     "demand forecast",
-#                     "forecasting",
-#                     "anomaly",
-#                     "abnormal",
-#                     "spike",
-#                     "suspicious",
-#                     "restock"
-#                 ]
-#             ):
-
-#                 return "retail_ml"
-
-#             # ==================================
-#             # ANALYTICS ROUTING
-#             # ==================================
-#             if any(
-
-#                 word in query_lower
-
-#                 for word in [
-
-#                     "analytics",
-#                     "sales",
-#                     "report",
-#                     "summary",
-#                     "business",
-#                     "profit",
-#                     "performance",
-#                     "inventory",
-#                     "stock",
-#                     "products",
-#                     "payment",
-#                     "revenue"
-#                 ]
-#             ):
-
-#                 return "analytics"
-
-#             return "analytics"
-
-#         return "qa"
-
-#     # ======================================
-#     # MAIN EXECUTION
-#     # ======================================
-#     def run(
-
-#         self,
-
-#         query,
-
-#         role,
-
-#         user_id,
-
-#         db
-#     ):
-
-#         try:
-
-#             agent_name = self.route_agent(
-
-#                 query=query,
-
-#                 role=role
-#             )
-
-#             print(f"\nROUTED TO: {agent_name}")
-
-#             # ==================================
-#             # QA AGENT
-#             # ==================================
-#             if agent_name == "qa":
-
-#                 response = ask_qa_agent(
-
-#                     query=query,
-
-#                     customer_id=user_id
-#                 )
-
-#                 return {
-
-#                     "success": True,
-
-#                     "agent": "qa_agent",
-
-#                     "response": response
-#                 }
-
-#             # ==================================
-#             # ANALYTICS AGENT
-#             # ==================================
-#             if agent_name == "analytics":
-
-#                 response = (
-
-#                     self.analytics_agent.run(
-
-#                         query=query,
-
-#                         retailer_id=user_id,
-
-#                         db=db
-#                     )
-#                 )
-
-#                 return {
-
-#                     "success": True,
-
-#                     "agent": "analytics_agent",
-
-#                     "response": response
-#                 }
-
-#             # ==================================
-#             # RETAIL ML AGENT
-#             # ==================================
-#             if agent_name == "retail_ml":
-
-#                 response = (
-
-#                     self.retail_ml_agent.run(
-
-#                         query=query,
-
-#                         retailer_id=user_id,
-
-#                         db=db
-#                     )
-#                 )
-
-#                 print("\nML RESPONSE:")
-#                 print(response)
-
-#                 return {
-
-#                     "success": True,
-
-#                     "agent": "retail_ml_agent",
-
-#                     "response": response
-#                 }
-
-#             return {
-
-#                 "success": False,
-
-#                 "message":
-#                 "No suitable agent found."
-#             }
-
-#         except Exception as e:
-
-#             print("ORCHESTRATOR ERROR:", e)
-
-#             return {
-
-#                 "success": False,
-
-#                 "message": str(e)
-#             }
-
 import os
 from pathlib import Path
 
@@ -259,6 +14,10 @@ from agent.qa_Agent.agent import ask_qa_agent
 from agent.analytics_agent.agent import AnalyticsAgent
 
 from agent.retail_ml_agent.agent import RetailMLAgent
+from agent.domain_guard import (
+    OFF_DOMAIN_RESPONSE,
+    is_retail_domain_query
+)
 
 
 # ==========================================
@@ -553,6 +312,13 @@ class OrchestratorAgent:
     ):
 
         try:
+
+            if not is_retail_domain_query(query):
+                return {
+                    "success": True,
+                    "agent": "domain_guard",
+                    "response": OFF_DOMAIN_RESPONSE
+                }
 
             result = self.graph.invoke({
                 "query": query,
