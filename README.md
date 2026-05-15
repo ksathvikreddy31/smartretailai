@@ -254,22 +254,108 @@ npm start
 
 ---
 
-# 🔑 Environment Variables
+# 🔑 Environment Variables Setup
 
-Create a `.env` file:
+Create a `.env` file inside the backend folder and configure the following environment variables.
+
+## Database Configuration
 
 ```env
-DATABASE_URL=
-JWT_SECRET_KEY=
-
-AZURE_OPENAI_API_KEY=
-AZURE_OPENAI_ENDPOINT=
-
-PINECONE_API_KEY=
-PINECONE_INDEX_NAME=
-
-AZURE_STORAGE_CONNECTION_STRING=
+DATABASE_URL=mssql+pyodbc://<USERNAME>:<PASSWORD>@<SERVER>.database.windows.net/<DATABASE_NAME>?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no&Connection+Timeout=30
 ```
+
+---
+
+## JWT Security Configuration
+
+```env
+SECRET_KEY=your_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
+
+---
+
+## Pinecone Configuration
+
+```env
+PINECONE_API_KEY=your_pinecone_api_key
+PINECONE_INDEX=your_pinecone_index
+```
+
+---
+
+## Azure OpenAI Configuration
+
+```env
+AZURE_OPENAI_API_KEY=your_azure_openai_api_key
+
+AZURE_OPENAI_ENDPOINT=https://your-resource-name.cognitiveservices.azure.com/
+
+AZURE_OPENAI_DEPLOYMENT_NAME=your_deployment_name
+
+AZURE_OPENAI_API_VERSION=2024-12-01-preview
+```
+
+---
+
+## Embedding Configuration
+
+```env
+OPENAI_EMBEDDING_PROVIDER=azure
+
+AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=text-embedding-3-large
+
+OPENAI_EMBEDDING_MODEL=text-embedding-3-large
+
+OPENAI_EMBEDDING_DIMENSION=3072
+```
+
+---
+
+## Azure Blob Storage Configuration
+
+```env
+AZURE_STORAGE_CONNECTION_STRING=your_azure_storage_connection_string
+
+AZURE_STORAGE_ACCOUNT=your_storage_account_name
+
+AZURE_STORAGE_KEY=your_storage_account_key
+
+AZURE_STORAGE_CONTAINER=your_container_name
+```
+
+---
+
+# ⚠️ Important Security Note
+
+❌ Never upload real `.env` files or API keys to GitHub.
+
+✅ Always use placeholder values in public repositories.
+
+✅ Add `.env` to `.gitignore` before pushing code.
+
+Example:
+
+```gitignore
+.env
+```
+
+---
+
+# 📦 Required Services
+
+Before running the project, make sure you have configured:
+
+- Azure OpenAI
+- Pinecone Vector Database
+- Azure SQL Database
+- Azure Blob Storage
+- Docker
+- Node.js
+- Python 3.11+
+
+---
 
 ---
 
@@ -421,6 +507,7 @@ AZURE_STORAGE_CONNECTION_STRING=
 ![Users](screenshots/warehouseadmin/usermanagement.png)
 
 ---
+
 # ☁️ Azure Cloud Integration
 
 ## Azure Resource Group
@@ -446,6 +533,7 @@ AZURE_STORAGE_CONNECTION_STRING=
 ![Azure Models](screenshots/azure/Models.png)
 
 ---
+
 ---
 
 # 👨‍💻 Contributors
