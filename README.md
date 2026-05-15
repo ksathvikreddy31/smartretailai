@@ -412,13 +412,13 @@ AZURE_STORAGE_CONNECTION_STRING=
 
 ## Warehouse Logs
 
-![Logs](screenshots/warehouseadmin/logs.png)
+![Logs](screenshots/warehouseadmin/orderlogs.png)
 
 ---
 
 ## User Management
 
-![Users](screenshots/warehouseadmin/users.png)
+![Users](screenshots/warehouseadmin/usermanagement.png)
 
 ---
 
